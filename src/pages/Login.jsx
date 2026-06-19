@@ -70,7 +70,7 @@ function Login() {
 
   try {
     const response = await fetch(
-      'https://localhost:7223/api/auth/login', // change to your API URL
+      'https://authbackend-bnevadekfbckead3.centralindia-01.azurewebsites.net/api/auth/login', // change to your API URL
       {
         method: 'POST',
         headers: {
