@@ -68,11 +68,35 @@ function Register() {
     setIsLoading(true);
     try {
       // Future API integration point
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log('Registration submitted:', {
-        fullName: formData.fullName,
-        email: formData.email,
-      });
+      // await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch(
+        "https://localhost:7223/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tenantId: "019568b0-0002-7000-8000-000000000002",
+            email: formData.email,
+            password: formData.password,
+            displayName: formData.fullName,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Registration Success", data);
+        alert("User Registered Successfully");
+      } else {
+        console.log(data);
+        alert("Registration Failed");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
     } finally {
       setIsLoading(false);
     }

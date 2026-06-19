@@ -9,7 +9,14 @@ import '../styles/Login.css';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  // const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+  tenantId: '019568b0-0002-7000-8000-000000000002',
+  email: '',
+  password: '',
+  deviceFingerprint: 'web-client',
+  audience: 'web'
+});
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(null);
@@ -41,19 +48,60 @@ function Login() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validate()) return;
 
-    setIsLoading(true);
-    try {
-      // Future API integration point
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log('Login submitted:', formData);
-    } finally {
-      setIsLoading(false);
+  //   setIsLoading(true);
+  //   try {
+  //     // Future API integration point
+  //     await new Promise((resolve) => setTimeout(resolve, 1500));
+  //     console.log('Login submitted:', formData);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validate()) return;
+
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(
+      'https://localhost:7223/api/auth/login', // change to your API URL
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Login failed');
     }
-  };
+
+    console.log('Login Success:', data);
+
+    localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+
+    alert('Login successful');
+
+    // navigate('/dashboard');
+  } catch (error) {
+    setErrors({
+      general: error.message
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleOAuthLogin = async (provider) => {
     setOauthLoading(provider);
@@ -119,7 +167,11 @@ function Login() {
           </div>
           {errors.password && <span className="form-error">{errors.password}</span>}
         </div>
-
+{errors.general && (
+  <div className="form-error">
+    {errors.general}
+  </div>
+)}
         <button
           type="submit"
           className={`btn btn--primary ${isLoading ? 'btn--loading' : ''}`}
